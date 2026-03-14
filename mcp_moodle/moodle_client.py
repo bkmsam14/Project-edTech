@@ -234,14 +234,24 @@ if __name__ == "__main__":
         else:
             print("      No courses found.")
 
-        print("\n[3/3] Fetching detailed grades for first course...")
-        if courses and courses[0]["id"]:
-            data  = client.get_grades(courses[0]["id"])
-            items = data.get("items", [])
-            for item in items[:5]:
-                print(f"      {item['item']}: {item['grade']}")
-            
-        
+        print("\n[3/3] Fetching detailed grades for all courses...")
+        if courses:
+            for course in courses:
+                if course["id"]:
+                    print(f"\n      Course: {course['fullname']}")
+                    print("      " + "=" * 50)
+                    data  = client.get_grades(course["id"])
+                    items = data.get("items", [])
+                    if items:
+                        for item in items:
+                            grade_display = f"{item['grade']}"
+                            if item['percentage']:
+                                grade_display += f" ({item['percentage']})"
+                            print(f"        • {item['item']}: {grade_display}")
+                    else:
+                        print("        No grade items found.")
+        else:
+            print("      No courses found.")
 
         print("\n[OK] Everything works!")
 

@@ -33,52 +33,7 @@ def get_session_cookie(email: str, password: str) -> str:
                 page.click("#loginbtn")
                 page.wait_for_load_state("domcontentloaded")
 
-            # ── Step 2: if we're now on Microsoft login, handle it ─────────
-            for _ in range(10):  # retry in case of multi-step MS login
-                current = page.url
-
-                # Microsoft email input step
-                if "microsoftonline.com" in current or "microsoft.com" in current:
-                    if page.locator("input[type='email']").is_visible():
-                        print("[Browser] Entering Microsoft email...")
-                        page.fill("input[type='email']", email)
-                        page.click("input[type='submit'], #idSIButton9, button[type='submit']")
-                        page.wait_for_load_state("domcontentloaded")
-                        continue
-
-                    # Microsoft password input step
-                    if page.locator("input[type='password']").is_visible():
-                        print("[Browser] Entering Microsoft password...")
-                        page.fill("input[type='password']", password)
-                        page.click("input[type='submit'], #idSIButton9, button[type='submit']")
-                        page.wait_for_load_state("domcontentloaded")
-                        continue
-
-                    # "Stay signed in?" prompt
-                    if page.locator("#idSIButton9").is_visible():
-                        page.click("#idSIButton9")
-                        page.wait_for_load_state("domcontentloaded")
-                        continue
-
-                # SSO button on Moodle page (some Moodle setups)
-                sso_btn = page.locator("a:has-text('Microsoft'), a:has-text('Office'), "
-                                       "a:has-text('Office 365'), a[href*='oidc'], "
-                                       "a[href*='microsoft']")
-                if sso_btn.count() > 0:
-                    print("[Browser] Clicking SSO button...")
-                    sso_btn.first.click()
-                    page.wait_for_load_state("domcontentloaded")
-                    continue
-
-                # If we're back on Moodle (not login page) → done
-                if MOODLE_URL in current and "/login" not in current:
-                    break
-
-                # If still on login with error → wrong credentials
-                if "/login" in current and page.locator(".loginerrors, .alert-danger").count() > 0:
-                    raise RuntimeError("Login failed: wrong email or password.")
-
-                break  # no more steps to handle
+            
 
             # ── Step 3: wait until Moodle dashboard loads ─────────────────
             print("[Browser] Waiting for Moodle to load...")

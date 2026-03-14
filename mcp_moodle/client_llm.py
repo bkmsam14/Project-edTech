@@ -28,7 +28,7 @@ from moodle_login import get_session_cookie
 # ── Config ────────────────────────────────────────────────────────────────────
 SERVER_SCRIPT    = os.path.join(os.path.dirname(__file__), "server.py")
 PYTHON_EXECUTABLE = sys.executable
-OLLAMA_MODEL     = "llama3.2"   # change to e.g. "qwen2.5:3b" if preferred
+OLLAMA_MODEL     = "qwen2.5:3b"   # change to e.g. "qwen2.5:3b" if preferred
 # ──────────────────────────────────────────────────────────────────────────────
 
 
