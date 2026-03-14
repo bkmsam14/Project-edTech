@@ -1,19 +1,18 @@
-# Orchestrator Agent Dependencies
+# Project Dependencies
 
 # Core
 python-dateutil>=2.8.2
 
-# For future FastAPI integration
+# Supabase (database connection)
+supabase>=2.3.0
+python-dotenv>=1.0.0
+
+# FastAPI (API layer)
 # fastapi>=0.104.0
 # uvicorn>=0.24.0
 # pydantic>=2.5.0
 
-# For future database integration
-# sqlalchemy>=2.0.0
-# asyncpg>=0.29.0
-
-# For future vector store integration
-# chromadb>=0.4.0
+# Vector embeddings (local model, no API cost)
 # sentence-transformers>=2.2.0
 
 # Development
