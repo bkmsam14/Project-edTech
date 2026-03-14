@@ -16,18 +16,21 @@ Requirements:
 """
 
 import sys
+import os
+import tempfile
 import ollama
 import chromadb
 from chromadb.utils import embedding_functions
 from moodle_login import get_session_cookie
 from moodle_client import MoodleClient, MoodleError
+from file_parser import parse_file, chunk_text
 
 OLLAMA_MODEL = "qwen2.5:3b"
 EMBEDDING_MODEL = "nomic-embed-text"  # Ollama embedding model
 
 
 def fetch_all_grades(client: MoodleClient) -> dict:
-    """Fetch profile, courses, and all grades."""
+    """Fetch profile, courses, grades, quiz details, and course materials."""
     print("\n[Fetching your data from Moodle...]")
 
     # Get profile
@@ -40,6 +43,9 @@ def fetch_all_grades(client: MoodleClient) -> dict:
 
     # Get grades for each course
     all_grades = []
+    all_quizzes = []
+    all_materials = []
+
     for course in courses:
         if course["id"]:
             print(f"  ✓ Fetching grades for: {course['fullname']}")
@@ -51,17 +57,120 @@ def fetch_all_grades(client: MoodleClient) -> dict:
                 "items": grade_data.get("items", []),
             })
 
+            # Fetch quiz activities
+            print(f"  ✓ Fetching quizzes for: {course['fullname']}")
+            try:
+                activities = client.get_course_activities(course["id"])
+                quizzes = [a for a in activities if a["type"] == "quiz"]
+
+                for quiz in quizzes:
+                    print(f"    ↳ Found quiz: {quiz['name']}")
+                    # Get quiz attempts
+                    attempts = client.get_quiz_attempts(quiz["id"])
+
+                    quiz_details = []
+                    for attempt in attempts:
+                        if attempt["attempt_id"]:
+                            print(f"      → Reviewing attempt {attempt['attempt_number']}")
+                            review = client.get_quiz_review(attempt["attempt_id"])
+                            quiz_details.append({
+                                "attempt_number": attempt["attempt_number"],
+                                "grade": attempt["grade"],
+                                "review": review,
+                            })
+
+                    if quiz_details:
+                        all_quizzes.append({
+                            "course_id": course["id"],
+                            "course_name": course["fullname"],
+                            "quiz_name": quiz["name"],
+                            "quiz_id": quiz["id"],
+                            "attempts": quiz_details,
+                        })
+            except Exception as e:
+                print(f"    ⚠ Could not fetch quizzes: {e}")
+
+            # Fetch course materials
+            print(f"  ✓ Fetching materials for: {course['fullname']}")
+            try:
+                materials = client.get_course_materials(course["id"])
+
+                for material in materials:
+                    print(f"    ↳ Found {material['type']}: {material['name']}")
+
+                    material_data = {
+                        "course_id": course["id"],
+                        "course_name": course["fullname"],
+                        "material_type": material["type"],
+                        "material_name": material["name"],
+                        "material_id": material["id"],
+                        "content": "",
+                    }
+
+                    # Extract content based on type
+                    try:
+                        if material["type"] == "page":
+                            # Get HTML page content
+                            page_data = client.get_page_content(material["id"])
+                            material_data["content"] = f"{page_data['title']}\n\n{page_data['content']}"
+                            print(f"      → Extracted page content ({len(material_data['content'])} chars)")
+
+                        elif material["type"] == "resource":
+                            # Download and parse file
+                            temp_dir = tempfile.gettempdir()
+                            file_ext = {
+                                "pdf": ".pdf",
+                                "docx": ".docx",
+                                "pptx": ".pptx",
+                            }.get(material.get("file_type", "unknown"), ".file")
+
+                            temp_file = os.path.join(temp_dir, f"moodle_resource_{material['id']}{file_ext}")
+
+                            try:
+                                client.download_resource(material["id"], temp_file)
+                                content = parse_file(temp_file, material.get("file_type"))
+                                material_data["content"] = content
+                                print(f"      → Parsed {material.get('file_type', 'file')} ({len(content)} chars)")
+
+                                # Clean up temp file
+                                if os.path.exists(temp_file):
+                                    os.remove(temp_file)
+                            except Exception as e:
+                                print(f"      ⚠ Could not download/parse file: {e}")
+
+                        elif material["type"] == "folder":
+                            # Get files from folder
+                            folder_files = client.get_folder_files(material["id"])
+                            print(f"      → Found {len(folder_files)} files in folder")
+
+                            # For now, just record folder contents
+                            folder_content = f"Folder: {material['name']}\nContains:\n"
+                            for file in folder_files:
+                                folder_content += f"- {file['name']}\n"
+                            material_data["content"] = folder_content
+
+                    except Exception as e:
+                        print(f"      ⚠ Error extracting content: {e}")
+
+                    if material_data["content"]:
+                        all_materials.append(material_data)
+
+            except Exception as e:
+                print(f"    ⚠ Could not fetch materials: {e}")
+
     return {
         "profile": profile,
         "courses": courses,
         "grades": all_grades,
+        "quizzes": all_quizzes,
+        "materials": all_materials,
     }
 
 
 def create_grade_chunks(data: dict) -> list[dict]:
     """
     Create chunks of grade information for vector embedding.
-    Each chunk is a logical piece of information (course overview, individual grades, etc.)
+    Each chunk is a logical piece of information (course overview, individual grades, quiz details, etc.)
     """
     chunks = []
     profile = data["profile"]
@@ -138,6 +247,142 @@ def create_grade_chunks(data: dict) -> list[dict]:
                 },
             })
 
+    # Quiz chunks with detailed questions and answers
+    for quiz_idx, quiz_info in enumerate(data.get("quizzes", [])):
+        course_name = quiz_info["course_name"]
+        quiz_name = quiz_info["quiz_name"]
+        quiz_id = quiz_info["quiz_id"]
+
+        for attempt in quiz_info["attempts"]:
+            attempt_num = attempt["attempt_number"]
+            attempt_grade = attempt["grade"]
+            review = attempt["review"]
+
+            # Quiz attempt overview chunk
+            overview_text = (
+                f"Course: {course_name}\n"
+                f"Quiz: {quiz_name}\n"
+                f"Attempt: {attempt_num}\n"
+                f"Grade: {attempt_grade}\n"
+                f"Overall Grade: {review.get('overall_grade', 'N/A')}"
+            )
+
+            chunks.append({
+                "id": f"quiz_{quiz_id}_attempt_{attempt_num}_overview",
+                "text": overview_text,
+                "metadata": {
+                    "type": "quiz_overview",
+                    "course_name": course_name,
+                    "quiz_name": quiz_name,
+                    "attempt_number": attempt_num,
+                },
+            })
+
+            # Individual question chunks
+            for question in review.get("questions", []):
+                q_num = question["question_number"]
+                q_text = question["question_text"]
+                student_ans = question["student_answer"]
+                correct_ans = question["correct_answer"]
+                outcome = question["outcome"]
+                feedback = question["feedback"]
+                q_grade = question["grade"]
+
+                question_text = (
+                    f"Course: {course_name}\n"
+                    f"Quiz: {quiz_name} (Attempt {attempt_num})\n"
+                    f"Question {q_num}: {q_text}\n"
+                    f"Your Answer: {student_ans}\n"
+                    f"Correct Answer: {correct_ans}\n"
+                    f"Result: {outcome}\n"
+                    f"Grade: {q_grade}\n"
+                )
+
+                if feedback:
+                    question_text += f"Feedback: {feedback}\n"
+
+                chunks.append({
+                    "id": f"quiz_{quiz_id}_attempt_{attempt_num}_q{q_num}",
+                    "text": question_text,
+                    "metadata": {
+                        "type": "quiz_question",
+                        "course_name": course_name,
+                        "quiz_name": quiz_name,
+                        "attempt_number": attempt_num,
+                        "question_number": q_num,
+                        "outcome": outcome,
+                    },
+                })
+
+            # Incorrect answers summary chunk
+            incorrect_questions = [
+                q for q in review.get("questions", [])
+                if q["outcome"] in ["incorrect", "partially correct"]
+            ]
+
+            if incorrect_questions:
+                mistakes_text = (
+                    f"Course: {course_name}\n"
+                    f"Quiz: {quiz_name} (Attempt {attempt_num})\n"
+                    f"Mistakes Made:\n\n"
+                )
+
+                for q in incorrect_questions:
+                    mistakes_text += (
+                        f"Question {q['question_number']}: {q['question_text']}\n"
+                        f"  Your Answer: {q['student_answer']}\n"
+                        f"  Correct Answer: {q['correct_answer']}\n"
+                        f"  Result: {q['outcome']}\n"
+                    )
+                    if q['feedback']:
+                        mistakes_text += f"  Feedback: {q['feedback']}\n"
+                    mistakes_text += "\n"
+
+                chunks.append({
+                    "id": f"quiz_{quiz_id}_attempt_{attempt_num}_mistakes",
+                    "text": mistakes_text,
+                    "metadata": {
+                        "type": "quiz_mistakes",
+                        "course_name": course_name,
+                        "quiz_name": quiz_name,
+                        "attempt_number": attempt_num,
+                    },
+                })
+
+    # Course material chunks
+    for mat_idx, material in enumerate(data.get("materials", [])):
+        course_name = material["course_name"]
+        material_type = material["material_type"]
+        material_name = material["material_name"]
+        material_id = material["material_id"]
+        content = material["content"]
+
+        if not content or len(content.strip()) < 50:
+            continue  # Skip empty or very short content
+
+        # Chunk the material content for better retrieval
+        text_chunks = chunk_text(content, chunk_size=1500, overlap=300)
+
+        for chunk_idx, chunk in enumerate(text_chunks):
+            chunk_text_content = (
+                f"Course: {course_name}\n"
+                f"Material: {material_name} ({material_type})\n\n"
+                f"{chunk}"
+            )
+
+            chunks.append({
+                "id": f"material_{material_id}_chunk_{chunk_idx}",
+                "text": chunk_text_content,
+                "metadata": {
+                    "type": "course_material",
+                    "course_name": course_name,
+                    "material_type": material_type,
+                    "material_name": material_name,
+                    "material_id": material_id,
+                    "chunk_index": chunk_idx,
+                },
+            })
+
     return chunks
 
 
@@ -206,6 +451,13 @@ def chat_loop(collection: chromadb.Collection, student_name: str):
     print("  - What should I focus on improving?")
     print("  - How did I do in [specific course]?")
     print("  - Show me my worst performing assignments")
+    print("  - What went wrong in [quiz name]?")
+    print("  - Which quiz questions did I get wrong?")
+    print("  - Show me my mistakes in the last quiz")
+    print("  - What topics are covered in [lecture/material name]?")
+    print("  - Explain [concept] from the course materials")
+    print("  - What did we learn about [topic]?")
+    print("  - Help me prepare for the quiz on [topic]")
     print("=" * 70)
     print()
 
@@ -240,9 +492,23 @@ def chat_loop(collection: chromadb.Collection, student_name: str):
                 "role": "system",
                 "content": (
                     f"You are a helpful academic advisor assistant for {student_name}. "
-                    "Answer questions about their academic performance based on the provided grade information. "
+                    "Answer questions about their academic performance based on the provided information. "
+                    "You have access to:\n"
+                    "- Course grades and assignments\n"
+                    "- Quiz attempts with detailed questions, answers, and feedback\n"
+                    "- Information about what went right and wrong in each quiz\n"
+                    "- Course materials (lectures, PDFs, presentations, documents)\n"
+                    "- Content from course pages and resources\n\n"
+                    "When discussing quiz mistakes, be specific about:\n"
+                    "- Which questions were answered incorrectly\n"
+                    "- What the student answered vs the correct answer\n"
+                    "- Any feedback or explanations provided\n\n"
+                    "When discussing course materials:\n"
+                    "- Reference specific topics and concepts from the materials\n"
+                    "- Help connect what was taught to quiz questions\n"
+                    "- Suggest relevant materials for review based on performance\n\n"
                     "Provide encouragement and suggest areas for improvement.\n\n"
-                    "RELEVANT GRADE INFORMATION:\n"
+                    "RELEVANT INFORMATION:\n"
                     f"{retrieved_context}"
                 ),
             },
