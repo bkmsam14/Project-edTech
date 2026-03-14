@@ -9,21 +9,27 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Add parent directory to path to import orchestrator
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'Project-edTech', 'src'))
+# Add parent directories to path
 sys.path.insert(0, os.path.dirname(__file__))  # Add APIendpoints to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # Add src to path
 
-from orchestrator.orchestrator import Orchestrator
-from orchestrator.schemas import Intent
+# Import simplified orchestrator
+try:
+    from orchestrator.orchestrator_simple import Orchestrator
+    logger.info("✓ Imported simplified Orchestrator")
+except ImportError:
+    # Fallback to complex orchestrator
+    from orchestrator.orchestrator import Orchestrator
+    logger.info("✓ Imported full-featured Orchestrator (fallback)")
+
 from database import init_db, seed_database
-from handlers import register_handlers
 
 # Initialize database (disabled until Supabase is configured)
 logger.info("Initializing database...")
 try:
     init_db()
     seed_database()
-    logger.info("Database initialized and seeded")
+    logger.info("✓ Database initialized and seeded")
 except Exception as e:
     logger.warning(f"⚠️  Database initialization failed (this is OK if Supabase not configured yet): {e}")
     logger.info("Backend will work without database until Supabase credentials are provided")
@@ -45,14 +51,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize orchestrator
-logger.info("Initializing orchestrator...")
+# PART 7: Initialize global orchestrator instance
+logger.info("🚀 Initializing Orchestrator...")
 orchestrator = Orchestrator()
-
-# Register all workflow step handlers
-logger.info("Registering workflow handlers...")
-register_handlers(orchestrator)
-logger.info("All handlers registered successfully")
+logger.info("✓ Orchestrator ready for use")
 
 
 # Health check endpoint
@@ -62,7 +64,8 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "EduAI API",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "orchestrator": "initialized"
     }
 
 
@@ -76,8 +79,12 @@ async def root():
         "description": "AI-powered learning platform with dyslexia support",
         "endpoints": {
             "health": "/health",
-            "process_request": "/api/v1/process",
-            "intents": "/api/v1/intents"
+            "quiz": "/api/v1/quiz/generate",
+            "assessment": "/api/v1/assessment/submit",
+            "explain": "/api/v1/explain",
+            "simplify": "/api/v1/simplify",
+            "recommendations": "/api/v1/recommendations",
+            "qa": "/api/v1/qa"
         }
     }
 
