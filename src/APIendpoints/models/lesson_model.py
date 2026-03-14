@@ -1,5 +1,5 @@
 """Lesson database model"""
-from sqlalchemy import Column, String, Text, DateTime, JSON
+from sqlalchemy import Column, String, Text, DateTime, JSON, Integer
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -22,7 +22,7 @@ class Lesson(Base):
 
     # Metadata
     difficulty = Column(String(50))  # beginner, intermediate, advanced
-    estimated_time_minutes = Column(int, default=30)
+    estimated_time_minutes = Column(Integer, default=30)
 
     # Tags for categorization
     tags = Column(JSON, default=[])
