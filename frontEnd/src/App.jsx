@@ -4,6 +4,8 @@ import SignUp from './pages/SignUp'
 import CreateProfile from './pages/CreateProfile'
 import LessonSelection from './pages/LessonSelection'
 import Workspace from './pages/Workspace'
+import Quiz from './pages/Quiz'
+import QuizResults from './pages/QuizResults'
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
         <Route path="/create-profile" element={<CreateProfile />} />
         <Route path="/lessons" element={<LessonSelection />} />
         <Route path="/workspace" element={<Workspace />} />
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/quiz-results" element={<QuizResults />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

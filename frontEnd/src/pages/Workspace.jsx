@@ -60,22 +60,22 @@ export default function Workspace() {
         </div>
 
         {/* ── Left Column: Lesson Tools ── */}
-        <section className="lg:w-1/3 flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto pr-2 pb-20 lg:pb-0"
+        <section className="lg:w-1/4 flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto pr-2 pb-20 lg:pb-0"
           style={{ scrollbarWidth: 'thin' }}>
 
           {/* Lesson Information Card */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-white" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
-            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4">Lesson Information</h2>
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-[#eef1f9] text-[#1d348a] rounded-2xl border-2 border-white shadow-sm shrink-0">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border border-white" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
+            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-3">Lesson</h2>
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 bg-[#eef1f9] text-[#1d348a] rounded-xl border-2 border-white shadow-sm shrink-0">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                 </svg>
               </div>
-              <div className="pt-1">
-                <h3 className="font-extrabold text-gray-800 text-2xl mb-1 leading-tight">Photosynthesis</h3>
-                <p className="text-[#1d348a] bg-[#eef1f9] inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold mt-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+              <div>
+                <h3 className="font-extrabold text-gray-800 text-lg mb-1 leading-tight">Photosynthesis</h3>
+                <p className="text-[#1d348a] bg-[#eef1f9] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold mt-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                   biology_notes.pdf
                 </p>
               </div>
@@ -83,51 +83,67 @@ export default function Workspace() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-white" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
-            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-5">Quick Actions</h2>
-            <div className="flex flex-col gap-3">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border border-white" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
+            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-4">Quick Actions</h2>
+            <div className="flex flex-col gap-2.5">
               {[
-                { icon: '🪄', label: 'Explain lesson', desc: 'Get a personalized breakdown' },
-                { icon: '✨', label: 'Simplify lesson', desc: 'Make the language easier' },
+                { icon: '🪄', label: 'Explain lesson', desc: 'Get personalized breakdown' },
+                { icon: '✨', label: 'Simplify lesson', desc: 'Make language easier' },
                 { icon: '📝', label: 'Summarize lesson', desc: 'Key points only' },
-                { icon: '📚', label: 'Define key concepts', desc: 'Vocabulary and terminology' },
+                { icon: '📚', label: 'Define concepts', desc: 'Vocabulary help' },
               ].map(action => (
                 <button
                   key={action.label}
-                  className="w-full text-left p-4 rounded-2xl border-2 border-[#e8eef6] hover:border-[#1d348a]/30 hover:bg-[#f8fafc] transition-all flex items-center gap-4 group focus:outline-none focus:ring-4 focus:ring-[#c2d1e7]"
+                  className="w-full text-left p-3 rounded-xl border-2 border-[#e8eef6] hover:border-[#1d348a]/30 hover:bg-[#f8fafc] transition-all flex items-center gap-3 group focus:outline-none focus:ring-4 focus:ring-[#c2d1e7]"
                 >
-                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center text-lg group-hover:scale-110 transition-transform shrink-0">
                     {action.icon}
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-800 text-[1rem] leading-none mb-1.5">{action.label}</h4>
-                    <p className="text-sm text-gray-500">{action.desc}</p>
+                    <h4 className="font-bold text-gray-800 text-sm leading-tight mb-0.5">{action.label}</h4>
+                    <p className="text-xs text-gray-500">{action.desc}</p>
                   </div>
                 </button>
               ))}
             </div>
+
+            {/* Take Quiz Button */}
+            <Link to="/quiz">
+              <button className="w-full mt-4 p-4 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white transition-all flex items-center gap-3 group shadow-lg hover:scale-105">
+                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-lg shrink-0 backdrop-blur-sm">
+                  ✅
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-black text-white text-sm leading-tight mb-0.5">Take Quiz</h4>
+                  <p className="text-xs text-white/80">Test your understanding</p>
+                </div>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </Link>
           </div>
 
           {/* Ask Question Box */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-white mb-2" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
-            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-5">Ask Questions</h2>
-            <div className="bg-[#f8fafc] rounded-2xl p-4 border border-[#e8eef6] focus-within:border-[#1d348a] focus-within:ring-4 focus-within:ring-[#c2d1e7] transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border border-white mb-2" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
+            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-4">Ask Questions</h2>
+            <div className="bg-[#f8fafc] rounded-xl p-3 border border-[#e8eef6] focus-within:border-[#1d348a] focus-within:ring-4 focus-within:ring-[#c2d1e7] transition-all">
               <textarea
-                placeholder="Ask a question about this lesson..."
-                className="w-full bg-transparent outline-none resize-none text-gray-800 placeholder-gray-400 text-lg leading-relaxed h-28"
+                placeholder="Ask about this lesson..."
+                className="w-full bg-transparent outline-none resize-none text-gray-800 placeholder-gray-400 text-sm leading-relaxed h-20"
               ></textarea>
               <div className="flex justify-end mt-2">
-                <Button variant="primary" className="rounded-xl px-6">
+                <Button variant="primary" className="rounded-lg px-5 py-2 text-sm">
                   Ask AI
                 </Button>
               </div>
             </div>
 
-            <div className="mt-6">
-              <p className="text-xs text-gray-400 font-semibold mb-3">SUGGESTED PROMPTS</p>
-              <div className="flex flex-wrap gap-2">
-                {['What is photosynthesis?', 'Explain chlorophyll', 'Summarize the process'].map(prompt => (
-                  <button key={prompt} className="px-4 py-2 bg-[#eef1f9] hover:bg-[#dce3f5] text-[#1d348a] text-sm font-medium rounded-full transition-colors">
+            <div className="mt-4">
+              <p className="text-[10px] text-gray-400 font-semibold mb-2">SUGGESTED</p>
+              <div className="flex flex-wrap gap-1.5">
+                {['What is photosynthesis?', 'Explain chlorophyll', 'Summarize'].map(prompt => (
+                  <button key={prompt} className="px-3 py-1.5 bg-[#eef1f9] hover:bg-[#dce3f5] text-[#1d348a] text-xs font-medium rounded-full transition-colors">
                     {prompt}
                   </button>
                 ))}
@@ -137,7 +153,7 @@ export default function Workspace() {
         </section>
 
         {/* ── Right Column: AI Response Panel ── */}
-        <section className="lg:w-2/3 flex flex-col h-[calc(100vh-8rem)]">
+        <section className="lg:w-3/4 flex flex-col h-[calc(100vh-8rem)]">
           <ExplanationCard supportMode={supportMode} step={step} setStep={setStep} />
         </section>
 
