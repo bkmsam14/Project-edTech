@@ -1,0 +1,13 @@
+# EdTech Agents - Hackathon Dependencies
+# No external dependencies required for core functionality
+# The agents use only Python standard library
+
+# Optional: For future LLM integration (if needed)
+# transformers>=4.30.0
+# torch>=2.0.0
+# sentencepiece>=0.1.99
+
+# Development dependencies (optional)
+# black>=23.0.0
+# mypy>=1.0.0
+# ruff>=0.0.260
