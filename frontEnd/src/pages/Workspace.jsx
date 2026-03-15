@@ -63,24 +63,7 @@ export default function Workspace() {
         <section className="lg:w-1/4 flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto pr-2 pb-20 lg:pb-0"
           style={{ scrollbarWidth: 'thin' }}>
 
-          {/* Lesson Information Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border border-white" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>
-            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-3">Lesson</h2>
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 bg-[#eef1f9] text-[#1d348a] rounded-xl border-2 border-white shadow-sm shrink-0">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-extrabold text-gray-800 text-lg mb-1 leading-tight">Photosynthesis</h3>
-                <p className="text-[#1d348a] bg-[#eef1f9] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold mt-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-                  biology_notes.pdf
-                </p>
-              </div>
-            </div>
-          </div>
+
 
           {/* Quick Actions */}
           <div className="bg-white rounded-3xl p-6 shadow-lg border border-white" style={{ boxShadow: '0 12px 40px rgba(29,52,138,0.06)' }}>

@@ -1,5 +1,6 @@
 import React from 'react';
 import TextToSpeech from './TextToSpeech';
+import { playTextToSpeech, stopTextToSpeech } from '../services/ttsService';
 
 export default function ExplanationCard({ supportMode, step, setStep }) {
   let explanationText = "";
@@ -64,7 +65,14 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
                 </h3>
 
                 {/* Audio Pronunciation */}
-                <button className="flex items-center gap-3 px-8 py-5 bg-gradient-to-r from-[#1d348a] to-[#2d4aa0] hover:from-[#162870] hover:to-[#1d348a] text-white rounded-2xl font-bold transition-all hover:scale-105 shadow-lg shadow-[#1d348a]/30">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    stopTextToSpeech();
+                    playTextToSpeech("Pho... to... syn... the... sis", null);
+                  }}
+                  className="flex items-center gap-3 px-8 py-5 bg-gradient-to-r from-[#1d348a] to-[#2d4aa0] hover:from-[#162870] hover:to-[#1d348a] text-white rounded-2xl font-bold transition-all hover:scale-105 shadow-lg shadow-[#1d348a]/30"
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
                   </svg>
