@@ -1,7 +1,7 @@
 """AI and LLM utilities for the backend
 
 Integrates with local LLM running via Ollama.
-Requires: ollama pull phi3:mini
+Requires: ollama pull qwen2.5:3b
 Run: ollama serve (on localhost:11434)
 """
 import logging
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-DEFAULT_MODEL = "phi3:mini"
+DEFAULT_MODEL = "qwen2.5:3b"
 REQUEST_TIMEOUT = 60  # seconds
 
 
@@ -31,7 +31,7 @@ def call_local_model(
 
     Args:
         prompt: The prompt/instruction to send to the model
-        model: Model name (default: phi3:mini)
+        model: Model name (default: qwen2.5:3b)
         stream: Whether to stream response (default: False for JSON response)
         temperature: Randomness of response (0.0-1.0, default 0.7)
         top_k: Token sampling parameter (default 40)

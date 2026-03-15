@@ -151,7 +151,7 @@ def setup_vector_db(chunks: list[dict]) -> chromadb.Collection:
     # Create embedding function using Ollama
     ollama_ef = embedding_functions.OllamaEmbeddingFunction(
         model_name=EMBEDDING_MODEL,
-        url="http://localhost:11434/api/embeddings",
+        url="http://localhost:11434",
     )
 
     # Create or get collection

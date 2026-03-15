@@ -51,7 +51,7 @@ class EmbeddingService:
             timeout:  HTTP request timeout in seconds.
         """
         self.model = model
-        self._url = f"{base_url.rstrip('/')}/api/embeddings"
+        self._base_url = base_url.rstrip("/")
         self._timeout = timeout
 
     # ------------------------------------------------------------------
@@ -100,7 +100,7 @@ class EmbeddingService:
         """
         try:
             resp = requests.get(
-                self._url.replace("/api/embeddings", "/"),
+                self._base_url + "/",
                 timeout=5,
             )
             return resp.status_code < 500
@@ -112,9 +112,38 @@ class EmbeddingService:
     # ------------------------------------------------------------------
 
     def _call(self, text: str) -> list[float]:
+        # Try new Ollama API first (/api/embed), fall back to old (/api/embeddings)
         try:
             resp = requests.post(
-                self._url,
+                f"{self._base_url}/api/embed",
+                json={"model": self.model, "input": text},
+                timeout=self._timeout,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            # New API returns {"embeddings": [[...]]}
+            embeddings = data.get("embeddings")
+            if isinstance(embeddings, list) and len(embeddings) > 0:
+                return embeddings[0]
+            # Some versions return "embedding" (singular) even on /api/embed
+            embedding = data.get("embedding")
+            if isinstance(embedding, list):
+                return embedding
+            raise EmbeddingError(
+                f"Unexpected /api/embed response: {data}"
+            )
+        except requests.HTTPError:
+            # /api/embed not available — try legacy /api/embeddings
+            pass
+        except requests.RequestException as exc:
+            raise EmbeddingError(
+                f"Embedding API call failed: {exc}"
+            ) from exc
+
+        # Legacy Ollama endpoint
+        try:
+            resp = requests.post(
+                f"{self._base_url}/api/embeddings",
                 json={"model": self.model, "prompt": text},
                 timeout=self._timeout,
             )
@@ -123,10 +152,10 @@ class EmbeddingService:
             embedding = data.get("embedding")
             if not isinstance(embedding, list):
                 raise EmbeddingError(
-                    f"Unexpected embedding API response: {data}"
+                    f"Unexpected /api/embeddings response: {data}"
                 )
             return embedding
         except requests.RequestException as exc:
             raise EmbeddingError(
-                f"Embedding API call failed ({self._url}): {exc}"
+                f"Embedding API call failed (both endpoints): {exc}"
             ) from exc

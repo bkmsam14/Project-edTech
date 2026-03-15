@@ -192,6 +192,108 @@ class MoodleClient:
         }
 
 
+    def get_course_content(self, course_id: int) -> dict:
+        """
+        Scrape the course main page for section titles, activity names,
+        and inline text content (Page resources, labels).
+
+        Returns:
+            {
+              "course_id": int,
+              "course_name": str,
+              "sections": [
+                {
+                  "section_title": str,
+                  "activities": [
+                    {"name": str, "type": str, "content": str, "url": str}
+                  ]
+                }
+              ]
+            }
+        """
+        soup = self._get("/course/view.php", id=course_id)
+
+        course_name = ""
+        heading = soup.find("h1")
+        if heading:
+            course_name = heading.get_text(strip=True)
+
+        sections = []
+        # Moodle wraps each section in <li class="section"> or <div class="section">
+        section_els = soup.select("li.section, div.section")
+
+        for sec_el in section_els:
+            # Section title
+            title_el = sec_el.select_one(".sectionname, .section-title")
+            section_title = title_el.get_text(strip=True) if title_el else ""
+
+            activities = []
+
+            # Activities are in <li class="activity"> elements
+            for act_el in sec_el.select("li.activity, div.activity"):
+                act_name_el = act_el.select_one(".activityname, .aalink, .instancename")
+                act_name = act_name_el.get_text(strip=True) if act_name_el else ""
+
+                # Determine type from CSS classes
+                act_classes = " ".join(act_el.get("class", []))
+                act_type = "unknown"
+                for t in ("resource", "page", "url", "label", "folder",
+                          "forum", "assign", "quiz", "book"):
+                    if t in act_classes:
+                        act_type = t
+                        break
+
+                # Get link
+                link_el = act_el.find("a")
+                act_url = link_el.get("href", "") if link_el else ""
+
+                # Inline content (labels, summaries)
+                content_el = act_el.select_one(".contentafterlink, .no-overflow, .label .mod-indent-outer")
+                inline_content = content_el.get_text(" ", strip=True) if content_el else ""
+
+                activities.append({
+                    "name": act_name,
+                    "type": act_type,
+                    "content": inline_content,
+                    "url": act_url,
+                })
+
+            if section_title or activities:
+                sections.append({
+                    "section_title": section_title,
+                    "activities": activities,
+                })
+
+        return {
+            "course_id": course_id,
+            "course_name": course_name,
+            "sections": sections,
+        }
+
+    def get_page_content(self, page_url: str) -> str:
+        """
+        Fetch and extract text from a Moodle 'Page' resource.
+
+        Args:
+            page_url: Full URL to the Moodle page resource.
+
+        Returns:
+            Extracted text content.
+        """
+        # Extract path from full URL
+        path = page_url.replace(BASE_URL, "")
+        if not path.startswith("/"):
+            path = "/" + path
+        soup = self._get(path)
+
+        # Main content area
+        content_el = soup.select_one("#region-main .no-overflow, #region-main .content, .generalbox")
+        if content_el:
+            return content_el.get_text(" ", strip=True)
+
+        return ""
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _strip_html(text: str) -> str:
