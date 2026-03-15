@@ -7,6 +7,7 @@ import Workspace from './pages/Workspace'
 import Quiz from './pages/Quiz'
 import QuizResults from './pages/QuizResults'
 import Home from './pages/Home'
+import ProgressPage from './pages/ProgressPage'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/workspace" element={<Workspace />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/quiz-results" element={<QuizResults />} />
+        <Route path="/progress" element={<ProgressPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

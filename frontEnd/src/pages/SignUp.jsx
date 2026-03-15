@@ -60,149 +60,148 @@ export default function SignUp() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 lg:p-10" style={{ background: '#efefee' }}>
-      {/* Blobs */}
-      <div aria-hidden="true" className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full opacity-25" style={{ background: '#c2d1e7', filter: 'blur(100px)' }} />
-        <div className="absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full opacity-25" style={{ background: '#1d348a', filter: 'blur(100px)' }} />
-      </div>
-
-      {/* Wide card */}
-      <div className="relative w-full max-w-5xl">
-        <div
-          className="bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row"
-          style={{ boxShadow: '0 24px 80px rgba(29,52,138,0.13)' }}
-        >
-          {/* ── Left: branding panel ── */}
-          <div
-            className="flex flex-col justify-between p-10 lg:p-14 lg:w-5/12"
-            style={{ background: 'linear-gradient(160deg, #1d348a 0%, #162870 55%, #0f1e56 100%)' }}
-          >
-            <div>
-              <div className="flex items-center gap-3 mb-12">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/15">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                  </svg>
-                </div>
-                <span className="text-white font-bold text-2xl tracking-tight">DysLearn</span>
-              </div>
-
-              <h2 className="text-white font-extrabold mb-4 leading-tight" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)' }}>
-                Join thousands of learners building confidence every day
-              </h2>
-              <p className="text-blue-200 leading-relaxed mb-10" style={{ fontSize: '1.05rem', lineHeight: 1.75 }}>
-                Create your free account and let DysLearn build a personalised reading experience just for you.
-              </p>
-
-              <ul className="flex flex-col gap-5">
-                {[
-                  { icon: '👥', text: 'Trusted by thousands of dyslexic learners' },
-                  { icon: '✨', text: 'AI-powered personalisation from day one' },
-                  { icon: '✅', text: 'Approved by educators and reading specialists' },
-                ].map(({ icon, text }) => (
-                  <li key={text} className="flex items-center gap-3">
-                    <span className="text-2xl">{icon}</span>
-                    <span className="text-blue-100" style={{ fontSize: '1rem' }}>{text}</span>
-                  </li>
-                ))}
-              </ul>
+    <main className="min-h-screen w-full flex flex-col lg:flex-row bg-[#efefee] overflow-hidden">
+      {/* ── Left: branding panel ── */}
+      <div
+        className="flex flex-col justify-center p-8 lg:p-14 lg:w-[45%] min-h-screen relative z-20 shadow-2xl"
+        style={{ background: 'linear-gradient(160deg, #1d348a 0%, #162870 55%, #0f1e56 100%)' }}
+      >
+        <div className="max-w-xl mx-auto w-full">
+          {/* Logo */}
+          <div className="flex items-center gap-4 mb-10">
+            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
             </div>
+            <span className="text-white font-black text-3xl tracking-tight">DysLearn</span>
+          </div>
 
-            {/* Testimonial */}
-            <div className="mt-12 p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.09)' }}>
-              <p className="text-blue-100 italic leading-relaxed mb-3" style={{ fontSize: '0.95rem' }}>
-                "DysLearn helped me feel confident reading again — the personalised support makes every lesson feel manageable."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: '#c2d1e7', color: '#1d348a' }}>S</div>
-                <div>
-                  <p className="text-white font-semibold text-sm">Sarah M.</p>
-                  <p className="text-blue-300 text-xs">Year 9 Student</p>
-                </div>
+          <h2 className="text-white font-black mb-4 leading-[1.1]" style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)' }}>
+            Join thousands of learners building confidence every day.
+          </h2>
+          <p className="text-blue-100 mb-8" style={{ fontSize: '1.2rem', lineHeight: 1.6 }}>
+            Create your free account and let DysLearn build a personalised reading experience just for you.
+          </p>
+
+          {/* Feature list */}
+          <ul className="flex flex-col gap-4">
+            {[
+              { icon: '👥', text: 'Trusted by thousands of dyslexic learners' },
+              { icon: '✨', text: 'AI-powered personalisation from day one' },
+              { icon: '✅', text: 'Approved by educators and reading specialists' },
+            ].map(({ icon, text }) => (
+              <li key={text} className="flex items-center gap-4">
+                <span className="text-3xl drop-shadow-md">{icon}</span>
+                <span className="text-white font-semibold text-lg tracking-wide">{text}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Testimonial */}
+          <div className="mt-10 p-6 rounded-3xl border border-white/10 backdrop-blur-md" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <p className="text-blue-50 italic mb-4 font-medium leading-relaxed text-lg">
+              "DysLearn helped me feel confident reading again — the personalised support makes every lesson feel manageable."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center font-black text-xl shadow-inner border border-white/20" style={{ background: '#c2d1e7', color: '#1d348a' }}>S</div>
+              <div>
+                <p className="text-white font-bold text-lg tracking-wide">Sarah M.</p>
+                <p className="text-blue-200 text-base font-medium">Year 9 Student</p>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* ── Right: form ── */}
-          <div className="flex flex-col justify-center p-10 lg:p-14 lg:w-7/12">
-            <h1 className="font-extrabold mb-3" style={{ color: '#1d1f2e', fontSize: 'clamp(2rem, 3vw, 2.75rem)', lineHeight: 1.2 }}>
-              Create Your Account ✨
-            </h1>
-            <p className="text-gray-500 mb-8" style={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-              Set up your account and start building a learning profile tailored to you.
-            </p>
+      {/* ── Right: full height form container ── */}
+      <div className="flex flex-col justify-center items-center p-6 lg:p-12 lg:w-[55%] min-h-screen relative">
+        {/* Blobs */}
+        <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          <div className="absolute top-0 right-0 w-[40rem] h-[40rem] rounded-full opacity-30 translate-x-1/3 -translate-y-1/3" style={{ background: '#c2d1e7', filter: 'blur(100px)' }} />
+          <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] rounded-full opacity-15 translate-y-1/3 -translate-x-1/3" style={{ background: '#1d348a', filter: 'blur(100px)' }} />
+        </div>
 
-            {success && (
-              <div role="status" className="flex items-center gap-2 px-5 py-4 rounded-xl text-base font-medium mb-6"
-                style={{ background: '#ECFDF5', color: '#10B981', border: '1px solid #6EE7B7' }}>
-                <span aria-hidden="true">✓</span> Account created! Redirecting to your profile setup…
+        <div
+          className="w-full max-w-2xl bg-white rounded-[2rem] p-8 lg:p-12 shadow-2xl relative z-10 border border-[#e8eef6]"
+          style={{ boxShadow: '0 24px 80px rgba(29,52,138,0.08)' }}
+        >
+          <h1 className="font-black mb-3 text-[#1d1f2e] tracking-tight" style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', lineHeight: 1.1 }}>
+            Create Your Account ✨
+          </h1>
+          <p className="text-gray-500 mb-6 text-lg font-medium tracking-wide">
+            Set up your account and start building a learning profile tailored to you.
+          </p>
+
+          {success && (
+            <div role="status" className="flex items-center gap-3 px-6 py-4 rounded-2xl text-lg font-bold tracking-wide shadow-md mb-6"
+              style={{ background: '#ECFDF5', color: '#10B981', border: '2px solid #6EE7B7' }}>
+              <span aria-hidden="true" className="text-xl">✓</span> Account created! Redirecting to setup…
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+            <InputField id="fullname" label="Full Name" type="text" placeholder="Jane Doe"
+              value={form.name} onChange={set('name')} error={errors.name} autoComplete="name" />
+            <InputField id="email" label="Email Address" type="email" placeholder="you@example.com"
+              value={form.email} onChange={set('email')} error={errors.email} autoComplete="email" />
+
+            {/* Password fields side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <InputField id="password" label="Password" type={showPw ? 'text' : 'password'}
+                placeholder="Min. 8 characters" value={form.password} onChange={set('password')}
+                error={errors.password} autoComplete="new-password"
+                rightElement={
+                  <button type="button" aria-label={showPw ? 'Hide' : 'Show'}
+                    onClick={() => setShowPw(v => !v)} className="text-gray-400 hover:text-[#1d348a] p-2 rounded-xl transition-colors hover:bg-[#eef1f9]">
+                    {showPw ? <EyeClosed /> : <EyeOpen />}
+                  </button>
+                }
+              />
+              <InputField id="confirm" label="Confirm Password" type={showCf ? 'text' : 'password'}
+                placeholder="Repeat password" value={form.confirm} onChange={set('confirm')}
+                error={errors.confirm} autoComplete="new-password"
+                rightElement={
+                  <button type="button" aria-label={showCf ? 'Hide' : 'Show'}
+                    onClick={() => setShowCf(v => !v)} className="text-gray-400 hover:text-[#1d348a] p-2 rounded-xl transition-colors hover:bg-[#eef1f9]">
+                    {showCf ? <EyeClosed /> : <EyeOpen />}
+                  </button>
+                }
+              />
+            </div>
+
+            {/* Password strength hint */}
+            {form.password.length > 0 && (
+              <div className="flex gap-2 items-center mt-1" aria-live="polite">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-2 flex-1 rounded-full transition-all duration-300 shadow-inner"
+                    style={{ background: form.password.length >= i * 3 ? (i <= 1 ? '#EF4444' : i <= 2 ? '#F59E0B' : '#10B981') : '#e5e7eb' }} />
+                ))}
+                <span className="text-gray-500 ml-2 font-bold uppercase tracking-widest text-xs">
+                  {form.password.length < 4 ? 'Weak' : form.password.length < 7 ? 'Fair' : form.password.length < 10 ? 'Good' : 'Strong'}
+                </span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-              <InputField id="fullname" label="Full Name" type="text" placeholder="Jane Doe"
-                value={form.name} onChange={set('name')} error={errors.name} autoComplete="name" />
-              <InputField id="email" label="Email Address" type="email" placeholder="you@example.com"
-                value={form.email} onChange={set('email')} error={errors.email} autoComplete="email" />
+            <Button type="submit" fullWidth disabled={loading || success} className="py-4 px-8 text-xl font-black rounded-[1.5rem] mt-2 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all tracking-wide">
+              {loading ? (
+                <span className="flex items-center justify-center gap-3">
+                  <svg className="animate-spin w-6 h-6" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Creating account…
+                </span>
+              ) : 'Create Free Account'}
+            </Button>
+          </form>
 
-              {/* Password fields side by side */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <InputField id="password" label="Password" type={showPw ? 'text' : 'password'}
-                  placeholder="Min. 8 characters" value={form.password} onChange={set('password')}
-                  error={errors.password} autoComplete="new-password"
-                  rightElement={
-                    <button type="button" aria-label={showPw ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowPw(v => !v)} className="text-gray-400 hover:text-[#1d348a] p-1 rounded-lg">
-                      {showPw ? <EyeClosed /> : <EyeOpen />}
-                    </button>
-                  }
-                />
-                <InputField id="confirm" label="Confirm Password" type={showCf ? 'text' : 'password'}
-                  placeholder="Repeat your password" value={form.confirm} onChange={set('confirm')}
-                  error={errors.confirm} autoComplete="new-password"
-                  rightElement={
-                    <button type="button" aria-label={showCf ? 'Hide' : 'Show'}
-                      onClick={() => setShowCf(v => !v)} className="text-gray-400 hover:text-[#1d348a] p-1 rounded-lg">
-                      {showCf ? <EyeClosed /> : <EyeOpen />}
-                    </button>
-                  }
-                />
-              </div>
-
-              {/* Password strength hint */}
-              {form.password.length > 0 && (
-                <div className="flex gap-1.5 items-center" aria-live="polite">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-1.5 flex-1 rounded-full transition-all duration-300"
-                      style={{ background: form.password.length >= i * 3 ? (i <= 1 ? '#EF4444' : i <= 2 ? '#F59E0B' : '#10B981') : '#e5e7eb' }} />
-                  ))}
-                  <span className="text-sm text-gray-500 ml-1 font-medium">
-                    {form.password.length < 4 ? 'Weak' : form.password.length < 7 ? 'Fair' : form.password.length < 10 ? 'Good' : 'Strong'}
-                  </span>
-                </div>
-              )}
-
-              <Button type="submit" fullWidth disabled={loading || success} className="py-4 text-lg">
-                {loading ? (
-                  <>
-                    <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Creating account…
-                  </>
-                ) : 'Create Account'}
-              </Button>
-            </form>
-
-            <p className="text-center mt-8 text-gray-600" style={{ fontSize: '1.05rem' }}>
-              Already have an account?{' '}
-              <Link to="/" className="font-semibold hover:underline underline-offset-2" style={{ color: '#1d348a' }}>
-                Sign In
-              </Link>
-            </p>
-          </div>
+          <p className="text-center mt-8 text-gray-500 text-lg font-medium tracking-wide">
+            Already have an account?{' '}
+            <Link to="/" className="font-extrabold hover:underline underline-offset-4 transition-colors p-2 rounded-lg hover:bg-[#eef1f9]" style={{ color: '#1d348a' }}>
+              Sign In Instead
+            </Link>
+          </p>
         </div>
       </div>
     </main>

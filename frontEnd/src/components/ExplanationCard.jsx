@@ -27,7 +27,7 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
               Photosynthesis
             </h2>
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#ECFDF5] text-[#10B981] border border-[#6EE7B7] shrink-0">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
               {supportMode === 'phonological' ? 'Phonological' :
                 supportMode === 'visual' ? 'Visual' : 'Reading Speed'}
             </div>
@@ -65,7 +65,7 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
                 </h3>
 
                 {/* Audio Pronunciation */}
-                <button 
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
                     stopTextToSpeech();
@@ -74,7 +74,7 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
                   className="flex items-center gap-3 px-8 py-5 bg-gradient-to-r from-[#1d348a] to-[#2d4aa0] hover:from-[#162870] hover:to-[#1d348a] text-white rounded-2xl font-bold transition-all hover:scale-105 shadow-lg shadow-[#1d348a]/30"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
                   </svg>
                   Play pronunciation
                 </button>
@@ -184,11 +184,11 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
             <div className="w-full relative">
               {/* Previous step indicator */}
               {step > 1 && (
-                 <div className="absolute -top-20 left-0 right-0 flex justify-center opacity-30">
-                   <div className="bg-white px-8 py-4 rounded-2xl shadow-sm text-gray-400 font-bold blur-[1px] scale-90 border-2 border-gray-200">
-                     Step {step - 1} completed ✓
-                   </div>
-                 </div>
+                <div className="absolute -top-20 left-0 right-0 flex justify-center opacity-30">
+                  <div className="bg-white px-8 py-4 rounded-2xl shadow-sm text-gray-400 font-bold blur-[1px] scale-90 border-2 border-gray-200">
+                    Step {step - 1} completed ✓
+                  </div>
+                </div>
               )}
 
               <div className="bg-gradient-to-br from-white to-[#f8fafc] p-14 lg:p-20 rounded-[2.5rem] shadow-2xl border-4 border-[#e8eef6] text-center transform transition-all duration-500 relative z-10 w-full">
@@ -223,14 +223,14 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
                     className="group flex items-center gap-4 px-12 py-7 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white rounded-full font-black text-2xl shadow-2xl shadow-[#10B981]/40 transition-all hover:scale-110 border-2 border-white"
                   >
                     Continue Reading
-                    <svg className="w-9 h-9 group-hover:translate-x-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    <svg className="w-9 h-9 group-hover:translate-x-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                   </button>
                   {step > 1 && (
                     <button
                       onClick={() => setStep(s => s - 1)}
                       className="group flex items-center gap-3 px-8 py-7 bg-white hover:bg-gray-50 text-gray-700 rounded-full font-bold text-xl transition-all border-2 border-gray-200 shadow-lg"
                     >
-                      <svg className="w-6 h-6 group-hover:-translate-x-2 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                      <svg className="w-6 h-6 group-hover:-translate-x-2 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
                       Previous
                     </button>
                   )}
@@ -244,7 +244,7 @@ export default function ExplanationCard({ supportMode, step, setStep }) {
                     onClick={() => setStep(1)}
                     className="group flex items-center gap-4 px-10 py-6 bg-gradient-to-r from-[#1d348a] to-[#2d4aa0] hover:from-[#162870] hover:to-[#1d348a] text-white rounded-full font-bold text-xl transition-all shadow-xl shadow-[#1d348a]/30 hover:scale-105 border-2 border-white"
                   >
-                    <svg className="w-7 h-7 group-hover:-rotate-180 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    <svg className="w-7 h-7 group-hover:-rotate-180 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
                     Restart from Beginning
                   </button>
                 </div>

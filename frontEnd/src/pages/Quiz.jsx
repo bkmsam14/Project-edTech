@@ -131,7 +131,7 @@ export default function Quiz() {
           <div className="flex items-center gap-3">
             <div className="bg-[#1d348a] text-white p-2 rounded-xl">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
               </svg>
             </div>
             <div>
@@ -229,15 +229,14 @@ export default function Quiz() {
                     disabled={showFeedback}
                     className={`w-full text-left p-6 rounded-2xl border-2 ${borderColor} ${bgColor} transition-all flex items-center gap-4 group ${!showFeedback && 'hover:border-[#1d348a]/50 cursor-pointer'}`}
                   >
-                    <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold text-lg shrink-0 ${
-                      showFeedback && isCorrectOption
+                    <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold text-lg shrink-0 ${showFeedback && isCorrectOption
                         ? 'bg-[#10B981] border-[#10B981] text-white'
                         : showFeedback && isSelected && !isCorrect
-                        ? 'bg-red-400 border-red-400 text-white'
-                        : isSelected
-                        ? 'bg-[#1d348a] border-[#1d348a] text-white'
-                        : 'bg-gray-100 border-gray-200 text-gray-600'
-                    }`}>
+                          ? 'bg-red-400 border-red-400 text-white'
+                          : isSelected
+                            ? 'bg-[#1d348a] border-[#1d348a] text-white'
+                            : 'bg-gray-100 border-gray-200 text-gray-600'
+                      }`}>
                       {String.fromCharCode(65 + index)}
                     </div>
                     <p className="text-xl lg:text-2xl font-bold text-gray-800 flex-1">
@@ -245,12 +244,12 @@ export default function Quiz() {
                     </p>
                     {showFeedback && isCorrectOption && (
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-[#10B981]">
-                        <polyline points="20 6 9 17 4 12"/>
+                        <polyline points="20 6 9 17 4 12" />
                       </svg>
                     )}
                     {showFeedback && isSelected && !isCorrect && (
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
                     )}
                   </button>
@@ -260,22 +259,20 @@ export default function Quiz() {
 
             {/* Feedback Section */}
             {showFeedback && (
-              <div className={`mx-8 lg:mx-10 mb-8 lg:mb-10 p-6 rounded-2xl border-2 ${
-                isCorrect
+              <div className={`mx-8 lg:mx-10 mb-8 lg:mb-10 p-6 rounded-2xl border-2 ${isCorrect
                   ? 'bg-[#ECFDF5] border-[#10B981]'
                   : 'bg-[#FEF2F2] border-red-300'
-              }`}>
+                }`}>
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
-                    isCorrect ? 'bg-[#10B981]' : 'bg-red-400'
-                  }`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isCorrect ? 'bg-[#10B981]' : 'bg-red-400'
+                    }`}>
                     {isCorrect ? (
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
+                        <polyline points="20 6 9 17 4 12" />
                       </svg>
                     ) : (
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
                     )}
                   </div>
@@ -300,14 +297,13 @@ export default function Quiz() {
               <button
                 onClick={handleGetHint}
                 disabled={hintLevel >= currentQ.hints.length}
-                className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
-                  hintLevel >= currentQ.hints.length
+                className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${hintLevel >= currentQ.hints.length
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-[#F59E0B] hover:bg-[#D97706] text-white shadow-lg hover:scale-105'
-                }`}
+                  }`}
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                  <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
                 {hintLevel === 0 ? 'Need a Hint?' : hintLevel >= currentQ.hints.length ? 'No More Hints' : `Get Another Hint (${hintLevel}/${currentQ.hints.length})`}
               </button>
@@ -317,11 +313,10 @@ export default function Quiz() {
               <button
                 onClick={handleSubmitAnswer}
                 disabled={selectedAnswer === null}
-                className={`px-10 py-4 rounded-2xl font-black text-xl transition-all ${
-                  selectedAnswer === null
+                className={`px-10 py-4 rounded-2xl font-black text-xl transition-all ${selectedAnswer === null
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-[#1d348a] to-[#2d4aa0] hover:from-[#162870] hover:to-[#1d348a] text-white shadow-xl hover:scale-105'
-                }`}
+                  }`}
               >
                 Check Answer
               </button>
@@ -332,7 +327,7 @@ export default function Quiz() {
               >
                 {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
+                  <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
             )}
@@ -344,7 +339,7 @@ export default function Quiz() {
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-[#F59E0B] rounded-full flex items-center justify-center shrink-0">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v20M2 12h20"/>
+                    <path d="M12 2v20M2 12h20" />
                   </svg>
                 </div>
                 <div className="flex-1">
