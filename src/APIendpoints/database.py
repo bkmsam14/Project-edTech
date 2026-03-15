@@ -3,15 +3,19 @@
 NOTE: Database is currently disabled pending Supabase configuration.
 When Supabase is set up, add these environment variables:
   - SUPABASE_URL: Your Supabase project URL
-  - SUPABASE_KEY: Your Supabase API key
-  - SUPABASE_DB_PASSWORD: Your database password
+  - SUPABASE_ANON_KEY: Your Supabase anon key
+  - SUPABASE_SERVICE_KEY: Your Supabase service role key
 
 Then set DATABASE_ENABLED = True in config.py
 """
 import logging
+import os
+from dotenv import load_dotenv
 from config import DATABASE_URL, DATABASE_ENABLED
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +25,50 @@ Base = declarative_base()
 # Database will be initialized when configured
 engine = None
 SessionLocal = None
+
+# Supabase clients
+_supabase_client = None
+_supabase_admin = None
+
+
+def get_supabase_client():
+    """
+    Get Supabase client with anon key (respects RLS policies)
+    Use this for user-facing operations
+    """
+    global _supabase_client
+
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+    SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
+
+    if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_ANON_KEY must be set in .env")
+
+    if _supabase_client is None:
+        from supabase import create_client
+        _supabase_client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    return _supabase_client
+
+
+def get_supabase_admin():
+    """
+    Get Supabase admin client with service key (bypasses RLS)
+    Use this for backend operations that need full access
+    """
+    global _supabase_admin
+
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+    SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
+
+    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in .env")
+
+    if _supabase_admin is None:
+        from supabase import create_client
+        _supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+    return _supabase_admin
 
 
 def init_db():

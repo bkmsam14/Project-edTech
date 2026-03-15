@@ -136,6 +136,16 @@ class Orchestrator:
                 context.add_result(step.value, result)
                 executed_steps.append(step.value)
 
+                # Promote critical results to top-level context attributes
+                # so downstream prerequisite checks pass
+                if step == WorkflowStep.LOAD_PROFILE and isinstance(result, dict):
+                    context.user_profile = result
+                if step == WorkflowStep.RETRIEVE_LESSON and isinstance(result, dict):
+                    if not context.lesson_content:
+                        context.lesson_content = result.get("lesson_content") or result
+                    if not context.retrieved_chunks:
+                        context.retrieved_chunks = result.get("retrieved_chunks", [])
+
                 logger.info(f"Step {step.value} completed successfully")
 
             except Exception as e:

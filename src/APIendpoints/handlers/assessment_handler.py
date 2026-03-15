@@ -1,8 +1,6 @@
 """Assessment handler - ASSESS_QUIZ workflow step"""
 import logging
 import uuid
-from database import SessionLocal
-from models.history_model import LearningHistory
 from utils.assessment import assess_quiz
 
 logger = logging.getLogger(__name__)
@@ -115,6 +113,13 @@ def _save_assessment_to_history(user_id: str, lesson_id: str, score: int, total:
                                answers: dict, feedback_items: list) -> None:
     """Save assessment result to learning history database"""
     try:
+        from database import SessionLocal
+        if SessionLocal is None:
+            logger.info("Database not initialized — skipping history save")
+            return
+
+        from models.history_model import LearningHistory
+
         db = SessionLocal()
         try:
             history_record = LearningHistory(

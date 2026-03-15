@@ -51,6 +51,7 @@ class SimplifyResponse(BaseAPIResponse):
 class QuizRequest(BaseModel):
     user_id: str
     lesson_id: str
+    course_id: Optional[str] = None
     accessibility_mode: Optional[str] = None
     difficulty: Optional[str] = "medium"
     num_questions: Optional[int] = 5
@@ -97,3 +98,63 @@ class QARequest(BaseModel):
 
 class QAResponse(BaseAPIResponse):
     pass
+
+
+# --- Profile Management ---
+
+class ProfileCreateRequest(BaseModel):
+    user_id: Optional[str] = None
+    name: str = "Student"
+    academic_level: str = "intermediate"
+    support_mode: str = "phonological"
+    preferred_format: str = "simplified"
+    font_size: int = 18
+    line_spacing: float = 1.8
+    focus_mode: bool = False
+
+
+class ProfileResponse(BaseModel):
+    success: bool
+    profile: Dict[str, Any]
+
+
+# --- Lesson Upload ---
+
+class LessonUploadRequest(BaseModel):
+    user_id: str
+    title: str
+    content: str
+    subject: Optional[str] = "General"
+    difficulty: Optional[str] = "intermediate"
+
+
+class LessonResponse(BaseModel):
+    success: bool
+    lesson: Dict[str, Any]
+
+
+# --- Unified Learn Workflow ---
+
+class LearnRequest(BaseModel):
+    user_id: str
+    lesson_id: Optional[str] = None
+    course_id: Optional[str] = None
+    document_id: Optional[str] = None
+    question: str
+    intent: str = "explain"
+    support_mode: str = "phonological"
+    preferred_format: str = "simplified_text"
+
+
+class LearnResponse(BaseModel):
+    success: bool
+    profile: Optional[Dict[str, Any]] = None
+    lesson: Optional[Dict[str, Any]] = None
+    retrieved_sources: Optional[List[Dict[str, Any]]] = None
+    explanation: Optional[str] = None
+    adapted_text: Optional[str] = None
+    quiz: Optional[Dict[str, Any]] = None
+    assessment: Optional[Dict[str, Any]] = None
+    recommendation: Optional[Dict[str, Any]] = None
+    workflow_steps_executed: List[str] = []
+    errors: List[str] = []

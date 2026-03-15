@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import InputField from '../components/InputField'
 import Button from '../components/Button'
+import { signUp } from '../services/api'
 
 const EyeOpen = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -45,18 +46,21 @@ export default function SignUp() {
     return errs
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
-    // Simulate sign-up then navigate
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      await signUp({ email: form.email, password: form.password, full_name: form.name })
       setSuccess(true)
       setTimeout(() => navigate('/create-profile'), 1200)
-    }, 1500)
+    } catch (err) {
+      setErrors({ form: err.message || 'Sign up failed. Please try again.' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -180,6 +184,13 @@ export default function SignUp() {
                 <span className="text-gray-500 ml-2 font-bold uppercase tracking-widest text-xs">
                   {form.password.length < 4 ? 'Weak' : form.password.length < 7 ? 'Fair' : form.password.length < 10 ? 'Good' : 'Strong'}
                 </span>
+              </div>
+            )}
+
+            {errors.form && (
+              <div role="alert" className="flex items-center gap-3 px-5 py-4 rounded-xl text-base font-bold"
+                style={{ background: '#FEF2F2', color: '#EF4444', border: '2px solid #FCA5A5' }}>
+                <span aria-hidden="true" className="text-xl">⚠</span>{errors.form}
               </div>
             )}
 

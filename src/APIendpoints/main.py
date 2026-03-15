@@ -13,14 +13,9 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, os.path.dirname(__file__))  # Add APIendpoints to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # Add src to path
 
-# Import simplified orchestrator
-try:
-    from orchestrator.orchestrator_simple import Orchestrator
-    logger.info("✓ Imported simplified Orchestrator")
-except ImportError:
-    # Fallback to complex orchestrator
-    from orchestrator.orchestrator import Orchestrator
-    logger.info("✓ Imported full-featured Orchestrator (fallback)")
+# Import orchestrator
+from orchestrator.orchestrator import Orchestrator
+logger.info("✓ Imported Orchestrator")
 
 from database import init_db, seed_database
 
@@ -96,14 +91,20 @@ async def root():
 
 # Import routes
 from routes import explain, simplify, quiz, assessment, recommendations, qa
+from routes import workflow
+from routes import moodle
+from routes import auth
 
 # Include routers
+app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(explain.router, prefix="/api/v1", tags=["Learning"])
 app.include_router(simplify.router, prefix="/api/v1", tags=["Accessibility"])
 app.include_router(quiz.router, prefix="/api/v1", tags=["Quiz"])
 app.include_router(assessment.router, prefix="/api/v1", tags=["Assessment"])
 app.include_router(recommendations.router, prefix="/api/v1", tags=["Recommendations"])
 app.include_router(qa.router, prefix="/api/v1", tags=["Q&A"])
+app.include_router(workflow.router, prefix="/api/v1", tags=["Workflow"])
+app.include_router(moodle.router, prefix="/api/v1", tags=["Moodle"])
 
 
 if __name__ == "__main__":

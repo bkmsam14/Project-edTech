@@ -27,7 +27,7 @@ def _debug(msg: str, **kwargs):
 # Vector store search (preferred path)
 # ---------------------------------------------------------------------------
 
-def _try_vector_search(query_text: str, tenant_id: str = "default"):
+def _try_vector_search(query_text: str, tenant_id: str = "default", document_id: str = None):
     """
     Attempt semantic search via the app/mcp retrieval layer (ChromaDB).
 
@@ -42,10 +42,16 @@ def _try_vector_search(query_text: str, tenant_id: str = "default"):
 
         from src.app.mcp.retrieval_tools import retrieval_search_chunks
 
+        filters = None
+        if document_id:
+            filters = {"document_id": document_id}
+            _debug("Applying course filter", document_id=document_id)
+
         _debug("Vector store search starting", query=query_text[:80], tenant=tenant_id)
         results = retrieval_search_chunks(
             query_text=query_text,
             tenant_id=tenant_id,
+            filters=filters,
             top_k=5,
             score_threshold=0.15,
         )
@@ -149,9 +155,11 @@ async def retrieve_lesson_handler(context):
 
     # --- Strategy 1: Vector store (semantic search) ---
     search_query = user_query or ""
-    tenant_id = context.request.context.get("tenant_id", "default") if context.request.context else "default"
+    req_context = context.request.context or {}
+    tenant_id = req_context.get("tenant_id", "default")
+    document_id = req_context.get("document_id")
 
-    vs_chunks, vs_ok = _try_vector_search(search_query, tenant_id)
+    vs_chunks, vs_ok = _try_vector_search(search_query, tenant_id, document_id=document_id)
 
     if vs_ok and vs_chunks:
         # Build lesson_content from the top-scoring chunk's document metadata
@@ -186,10 +194,46 @@ async def retrieve_lesson_handler(context):
                 "source": "sqlalchemy",
             }
 
+    # --- Strategy 3: In-memory lesson store (workflow.py) ---
+    if lesson_id:
+        try:
+            from routes.workflow import _lessons
+            in_mem_lesson = _lessons.get(lesson_id)
+            if in_mem_lesson:
+                content = in_mem_lesson.get("content", "")
+                # Generate simple sentence chunks from content
+                sentences = [s.strip() for s in content.split('.') if s.strip() and len(s.strip()) > 15]
+                mem_chunks = [
+                    {"text": s + ".", "chunk_id": f"mem_{i}", "document_id": lesson_id,
+                     "score": 1.0, "relevance": 1.0, "source": "in_memory"}
+                    for i, s in enumerate(sentences[:10])
+                ]
+                if not mem_chunks and content:
+                    mem_chunks = [{"text": content[:2000], "chunk_id": "mem_0",
+                                   "document_id": lesson_id, "score": 1.0,
+                                   "relevance": 1.0, "source": "in_memory"}]
+                context.lesson_content = in_mem_lesson
+                context.retrieved_chunks = mem_chunks
+                _debug("Context populated from IN-MEMORY STORE",
+                       chunk_count=len(mem_chunks),
+                       content_len=len(content))
+                return {
+                    "lesson_content": context.lesson_content,
+                    "retrieved_chunks": context.retrieved_chunks,
+                    "source": "in_memory",
+                }
+        except Exception as e:
+            _debug(f"In-memory store lookup failed: {e}")
+
     # --- Nothing found ---
     _debug("WARNING: No content found from any source")
-    context.retrieved_chunks = []
-    context.lesson_content = None
+    # Provide a minimal context using the user's question so the tutor handler can still respond
+    fallback_text = f"The user asked: {user_query}" if user_query else ""
+    context.retrieved_chunks = [{"text": fallback_text, "chunk_id": "fallback_0",
+                                  "document_id": lesson_id or "", "score": 0.3,
+                                  "relevance": 0.3, "source": "fallback"}] if fallback_text else []
+    context.lesson_content = {"lesson_id": lesson_id or "", "title": "No lesson loaded",
+                              "content": fallback_text} if fallback_text else None
     return {"error": "No lesson content found", "source": "none"}
 
 
@@ -206,6 +250,11 @@ async def retrieve_history_handler(context):
             return {"history": []}
 
         from database import SessionLocal
+
+        if SessionLocal is None:
+            logger.info("Database not initialized — returning empty history")
+            return {"history": []}
+
         from models.history_model import LearningHistory
 
         db = SessionLocal()
@@ -222,4 +271,4 @@ async def retrieve_history_handler(context):
 
     except Exception as e:
         logger.error(f"Error retrieving history: {e}")
-        raise
+        return {"history": []}

@@ -43,6 +43,8 @@ class QuizRequest(BaseModel):
     """Request to generate a quiz"""
     user_id: str = Field(..., description="Unique user identifier")
     lesson_id: str = Field(..., description="Lesson to quiz on")
+    course_id: Optional[str] = Field(None, description="Course ID for course-scoped quizzes")
+    accessibility_mode: Optional[str] = Field(None, description="Accessibility mode")
     num_questions: int = Field(5, ge=1, le=20, description="Number of questions")
     difficulty: str = Field("medium", description="Quiz difficulty level")
 
@@ -189,3 +191,14 @@ class ErrorResponse(BaseModel):
     error: str
     error_code: str
     details: Optional[Dict[str, Any]] = None
+
+
+# Re-export models from api_schemas for backward compatibility
+from models.api_schemas import (
+    ProfileCreateRequest,
+    ProfileResponse,
+    LessonUploadRequest,
+    LessonResponse,
+    LearnRequest,
+    LearnResponse,
+)

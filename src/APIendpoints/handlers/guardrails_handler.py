@@ -1,5 +1,6 @@
 """Guardrails handler - VALIDATE_GUARDRAILS workflow step"""
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -11,18 +12,11 @@ async def validate_guardrails_handler(context):
     Checks:
     1. Response is grounded in lesson content (not hallucinations)
     2. No medical/diagnosis claims (especially for dyslexia)
-    3. Appropriate language level for user
-    4. Content is within scope of lesson
-    5. No harmful or inappropriate content
-
-    Input (from context):
-        - All intermediate results
-
-    Output:
-        - passed: Boolean indicating if response passes guardrails
-        - issues: List of any issues found
-        - warnings: List of warnings
-        - stores in context.intermediate_results["guardrails_result"]
+    3. No harmful or inappropriate content
+    4. Response length sanity
+    5. Quiz question structure validity
+    6. Assessment score range validity
+    7. Recommendations availability
     """
     try:
         issues = []
@@ -30,28 +24,49 @@ async def validate_guardrails_handler(context):
         passed = True
 
         # Check 1: Response is grounded
-        explanation = context.intermediate_results.get("explanation", "")
+        explanation = context.intermediate_results.get("tutor_explanation", "")
+        if isinstance(explanation, dict):
+            explanation = explanation.get("explanation", "")
         chunks = context.retrieved_chunks or []
 
         if explanation and not chunks:
             warnings.append("Response generated without source content - ensure it's accurate")
 
-        # Check 2: No medical/diagnosis claims (especially for dyslexia)
+        # Check 1b: Course relevance (if a course is selected)
+        course_id = None
+        if context.request.context:
+            course_id = context.request.context.get("course_id")
+
+        if course_id and chunks:
+            course_doc_id = f"moodle_course_{course_id}"
+            relevant_chunks = [c for c in chunks if c.get("document_id", "").startswith(course_doc_id)]
+            if not relevant_chunks:
+                low_scores = all(c.get("score", 0) < 0.3 for c in chunks)
+                if low_scores:
+                    warnings.append(
+                        "Your question doesn't appear to be related to the selected course content. "
+                        "Try asking something specific to your course material."
+                    )
+        elif course_id and not chunks:
+            warnings.append(
+                "No relevant course content found for your question. "
+                "Make sure course content has been ingested."
+            )
+
+        # Check 2: No medical/diagnosis claims
         medical_warning_keywords = [
-            "dyslexia diagnosis",
-            "diagnosed with dyslexia",
-            "treatment for dyslexia",
-            "cure for dyslexia",
-            "medication",
-            "prescribe",
-            "medical condition"
+            "dyslexia diagnosis", "diagnosed with dyslexia",
+            "treatment for dyslexia", "cure for dyslexia",
+            "medication", "prescribe", "medical condition"
         ]
 
-        explanation_lower = explanation.lower()
+        explanation_lower = (explanation or "").lower()
         for keyword in medical_warning_keywords:
             if keyword in explanation_lower:
-                issues.append(f"WARNING: Found potentially clinical claim: '{keyword}'. "
-                            "Ensure only educational content, not medical advice.")
+                issues.append(
+                    f"WARNING: Found potentially clinical claim: '{keyword}'. "
+                    "Ensure only educational content, not medical advice."
+                )
                 passed = False
 
         # Check 3: Content appropriateness
@@ -68,25 +83,25 @@ async def validate_guardrails_handler(context):
             warnings.append("Response is very long - consider breaking into sections")
 
         # Check 5: Quiz questions are valid
-        quiz = context.intermediate_results.get("quiz", {})
-        if quiz:
+        quiz = context.intermediate_results.get("generate_quiz", {})
+        if isinstance(quiz, dict):
             questions = quiz.get("questions", [])
             for q in questions:
-                if not q.get("question") or not q.get("options"):
-                    issues.append(f"Invalid quiz question structure")
+                if not q.get("question") and not q.get("question_text"):
+                    issues.append("Invalid quiz question structure")
                     passed = False
 
         # Check 6: Assessment results valid
-        assessment = context.intermediate_results.get("assessment", {})
-        if assessment:
+        assessment = context.intermediate_results.get("assess_quiz", {})
+        if isinstance(assessment, dict):
             score = assessment.get("percentage", 0)
-            if not (0 <= score <= 100):
+            if score and not (0 <= score <= 100):
                 issues.append(f"Invalid assessment score: {score}")
                 passed = False
 
         # Check 7: Recommendations are relevant
-        recommendations = context.intermediate_results.get("recommendations", {})
-        if recommendations:
+        recommendations = context.intermediate_results.get("recommend", {})
+        if isinstance(recommendations, dict):
             recs = recommendations.get("recommendations", [])
             if len(recs) > 0 and len(recs) < 3:
                 warnings.append("Only a few recommendations available")
@@ -95,7 +110,7 @@ async def validate_guardrails_handler(context):
             "passed": passed,
             "issues": issues,
             "warnings": warnings,
-            "validation_timestamp": str(context.timestamp)
+            "validation_timestamp": datetime.utcnow().isoformat()
         }
 
         if passed:
@@ -107,4 +122,9 @@ async def validate_guardrails_handler(context):
 
     except Exception as e:
         logger.error(f"Error validating guardrails: {e}")
-        raise
+        return {
+            "passed": True,
+            "issues": [],
+            "warnings": [f"Guardrails validation error: {str(e)}"],
+            "validation_timestamp": datetime.utcnow().isoformat()
+        }

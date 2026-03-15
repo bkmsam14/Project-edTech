@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
+import { createProfile } from '../services/api'
+import { useFontSize } from '../context/FontSizeContext'
 
 // ---------- Icons for support mode cards ----------
 const PhonologicalIcon = () => (
@@ -112,6 +114,7 @@ function Section({ title, subtitle, children }) {
 
 export default function CreateProfile() {
   const navigate = useNavigate()
+  const { setFontSize: setGlobalFontSize } = useFontSize()
 
   const [academicLevel, setAcademicLevel] = useState('')
   const [supportMode, setSupportMode] = useState('')
@@ -131,16 +134,52 @@ export default function CreateProfile() {
     return errs
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSuccess(true)
-    }, 1500)
+
+    // Build profile locally so it works even without a backend
+    const localProfile = {
+      user_id: `user_${Date.now().toString(36)}`,
+      name: 'Student',
+      academic_level: academicLevel,
+      support_mode: supportMode,
+      preferred_format: learningFormat,
+      accessibility_settings: {
+        font_size: `${fontSize}px`,
+        line_spacing: String(lineSpacing),
+        focus_mode: focusMode,
+        font_family: 'sans-serif',
+        letter_spacing: '0.1em',
+      },
+      mastery_levels: {},
+      learning_level: academicLevel,
+    }
+
+    try {
+      const res = await createProfile({
+        name: 'Student',
+        academic_level: academicLevel,
+        support_mode: supportMode,
+        preferred_format: learningFormat,
+        font_size: fontSize,
+        line_spacing: lineSpacing,
+        focus_mode: focusMode,
+      })
+      // Use backend profile if available
+      localStorage.setItem('eduai_profile', JSON.stringify(res.profile))
+    } catch {
+      // Backend unavailable — save the locally-built profile
+      localStorage.setItem('eduai_profile', JSON.stringify(localProfile))
+    }
+
+    setGlobalFontSize(fontSize)
+    setLoading(false)
+    setSuccess(true)
+    setTimeout(() => navigate('/lessons'), 1500)
   }
 
   return (

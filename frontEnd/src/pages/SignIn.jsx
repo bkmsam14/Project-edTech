@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import InputField from '../components/InputField'
 import Button from '../components/Button'
+import { signIn } from '../services/api'
 
 const EyeOpen = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -17,6 +18,7 @@ const EyeClosed = () => (
 )
 
 export default function SignIn() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -32,14 +34,25 @@ export default function SignIn() {
     return errs
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
-    // Simulate sign-in (replace with real API call)
-    setTimeout(() => setLoading(false), 1500)
+    try {
+      const data = await signIn({ email, password })
+      // If onboarding not done, redirect to profile setup; otherwise go to lessons
+      if (data.user && !data.user.onboarding_completed) {
+        navigate('/create-profile')
+      } else {
+        navigate('/lessons')
+      }
+    } catch (err) {
+      setErrors({ form: err.message || 'Sign in failed. Please check your credentials.' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

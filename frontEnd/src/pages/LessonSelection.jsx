@@ -1,28 +1,67 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
+import { uploadLessonFile } from '../services/api'
 
 export default function LessonSelection() {
   const navigate = useNavigate()
   const [isHovering, setIsHovering] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState(null)
 
   function handleDrop(e) {
     e.preventDefault()
     setIsHovering(false)
-    simulateUpload()
+    const file = e.dataTransfer.files[0]
+    if (file) handleFile(file)
   }
 
-  function simulateUpload() {
+  function handleFileInput(e) {
+    const file = e.target.files[0]
+    if (file) handleFile(file)
+  }
+
+  async function handleFile(file) {
     setUploading(true)
-    setTimeout(() => {
-      setUploading(false)
+    setError(null)
+
+    try {
+      const profile = JSON.parse(localStorage.getItem('eduai_profile') || '{}')
+      const userId = profile.user_id || 'user_001'
+      const course = JSON.parse(localStorage.getItem('eduai_course') || '{}')
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('user_id', userId)
+      formData.append('subject', 'General')
+      formData.append('difficulty', 'intermediate')
+      if (course.course_id) {
+        formData.append('course_id', String(course.course_id))
+      }
+
+      const result = await uploadLessonFile(formData)
+
+      // Store lesson info for the workspace
+      const lesson = result.lesson || result
+      localStorage.setItem('eduai_lesson', JSON.stringify({
+        lesson_id: lesson.lesson_id,
+        title: lesson.title,
+        fileName: file.name,
+        document_id: lesson.document_id,
+      }))
+      localStorage.setItem('eduai_lesson_id', lesson.lesson_id)
+
       navigate('/workspace')
-    }, 1500)
+    } catch (err) {
+      console.error('Upload failed:', err)
+      setError(err.message || 'Failed to upload lesson')
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8 lg:p-12" style={{ background: '#efefee' }}>
+    <main className="min-h-screen flex items-center justify-center p-8 lg:p-12" style={{ background: '#efefee', fontSize: 'var(--user-font-size)' }}>
       {/* Background blobs */}
       <div aria-hidden="true" className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-[40rem] h-[40rem] rounded-full opacity-20" style={{ background: '#c2d1e7', filter: 'blur(120px)' }} />
@@ -77,14 +116,20 @@ export default function LessonSelection() {
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
-                {['PDF', 'Text', 'Lecture Notes'].map(format => (
+                {['PDF', 'DOCX', 'PPTX', 'Text'].map(format => (
                   <span key={format} className="px-5 py-2.5 rounded-xl text-lg font-bold border-2" style={{ borderColor: '#e8eef6', color: '#1d348a', background: '#f8fafc' }}>
                     {format}
                   </span>
                 ))}
               </div>
 
-              <input type="file" id="file-upload" className="hidden" onChange={simulateUpload} />
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 text-red-700 rounded-xl text-lg font-bold">
+                  {error}
+                </div>
+              )}
+
+              <input type="file" id="file-upload" className="hidden" accept=".txt,.pdf,.md,.tex,.docx,.pptx" onChange={handleFileInput} />
               <label htmlFor="file-upload">
                 <Button as="span" className="pointer-events-none px-10 py-5 text-xl font-bold shadow-xl shadow-[#1d348a]/20">
                   {uploading ? 'Processing File...' : 'Browse Files'}

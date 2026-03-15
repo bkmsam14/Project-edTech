@@ -43,7 +43,17 @@ async def load_profile_handler(context):
 
     # Fallback when database is disabled
     if not DATABASE_ENABLED:
-        logger.info(f"Database disabled — returning fallback mock profile for user {user_id}")
+        logger.info(f"Database disabled — checking in-memory profiles for user {user_id}")
+        # Check in-memory profile store from workflow.py
+        try:
+            from routes.workflow import _profiles
+            in_mem = _profiles.get(user_id)
+            if in_mem:
+                logger.info(f"Found in-memory profile for user {user_id}")
+                return in_mem
+        except Exception:
+            pass
+        logger.info(f"No in-memory profile found — returning default for user {user_id}")
         return _default_profile(user_id)
 
     try:

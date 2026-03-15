@@ -10,6 +10,9 @@ from models.api_schemas import (
     AssessmentRequest, AssessmentResponse,
     RecommendationRequest, RecommendationResponse,
     QARequest, QAResponse,
+    ProfileCreateRequest, ProfileResponse,
+    LessonUploadRequest, LessonResponse,
+    LearnRequest, LearnResponse,
 )
 
 __all__ = [
@@ -21,4 +24,7 @@ __all__ = [
     "AssessmentRequest", "AssessmentResponse",
     "RecommendationRequest", "RecommendationResponse",
     "QARequest", "QAResponse",
+    "ProfileCreateRequest", "ProfileResponse",
+    "LessonUploadRequest", "LessonResponse",
+    "LearnRequest", "LearnResponse",
 ]

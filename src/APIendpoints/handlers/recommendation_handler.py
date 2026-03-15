@@ -1,7 +1,5 @@
 """Recommendation handler - RECOMMEND workflow step"""
 import logging
-from database import SessionLocal
-from models.lesson_model import Lesson
 from utils.recommendation import generate_recommendations
 
 logger = logging.getLogger(__name__)
@@ -63,8 +61,21 @@ async def recommendation_handler(context):
 
 
 def _fetch_available_lessons() -> list:
-    """Fetch all lessons from DB and convert to dicts."""
+    """Fetch all lessons from DB or in-memory store."""
+    # Try in-memory store first (always available)
     try:
+        from routes.workflow import _lessons
+        if _lessons:
+            return list(_lessons.values())
+    except Exception:
+        pass
+
+    # Try database
+    try:
+        from database import SessionLocal
+        if SessionLocal is None:
+            return []
+        from models.lesson_model import Lesson
         db = SessionLocal()
         try:
             lessons = db.query(Lesson).all()

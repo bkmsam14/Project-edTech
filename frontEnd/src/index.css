@@ -8,6 +8,7 @@
   --color-success: #10B981;
   --color-error: #EF4444;
   --color-warning: #F59E0B;
+  --user-font-size: 18px;
 }
 
 *, *::before, *::after {

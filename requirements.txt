@@ -15,6 +15,16 @@ python-dotenv>=1.0.0
 # Vector embeddings (local model, no API cost)
 # sentence-transformers>=2.2.0
 
+# Document parsing
+PyPDF2>=3.0.0
+python-docx>=1.0.0
+python-pptx>=0.6.21
+python-multipart>=0.0.6
+
+# Moodle integration
+beautifulsoup4>=4.12.0
+httpx>=0.25.0
+
 # Development
 pytest>=7.4.0
 pytest-asyncio>=0.21.0

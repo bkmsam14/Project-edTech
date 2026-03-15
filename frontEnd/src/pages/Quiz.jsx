@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
+import { generateQuiz } from '../services/api'
 
 export default function Quiz() {
   const navigate = useNavigate()
@@ -10,64 +11,85 @@ export default function Quiz() {
   const [hintLevel, setHintLevel] = useState(0)
   const [answeredQuestions, setAnsweredQuestions] = useState([])
   const [showFeedback, setShowFeedback] = useState(false)
+  const [quizData, setQuizData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Mock quiz data - in real app, this would come from backend based on uploaded course
-  const quizData = {
-    title: "Photosynthesis Quiz",
-    course: "biology_notes.pdf",
-    questions: [
-      {
-        id: 1,
-        question: "What is the main purpose of photosynthesis?",
-        options: [
-          "To make plants grow taller",
-          "To create food/energy for the plant",
-          "To make flowers bloom",
-          "To produce carbon dioxide"
-        ],
-        correctAnswer: 1,
-        hints: [
-          "Think about what plants need to survive and grow...",
-          "Plants need energy just like humans need food for energy...",
-          "The word 'synthesis' means to make or create something..."
-        ],
-        explanation: "Photosynthesis is how plants make their own food (glucose) using sunlight, water, and carbon dioxide. This food gives them energy to grow and survive!"
-      },
-      {
-        id: 2,
-        question: "Which THREE things do plants need for photosynthesis?",
-        options: [
-          "Sunlight, water, carbon dioxide",
-          "Sunlight, soil, oxygen",
-          "Water, fertilizer, shade",
-          "Rain, wind, darkness"
-        ],
-        correctAnswer: 0,
-        hints: [
-          "Think about what you learned in the lesson...",
-          "One comes from the sky, one from the ground, and one from the air...",
-          "Remember the three items with emojis: ☀️💧💨"
-        ],
-        explanation: "Plants need sunlight (☀️), water (💧), and carbon dioxide (💨) to make food through photosynthesis. These three ingredients combine to create glucose and oxygen!"
-      },
-      {
-        id: 3,
-        question: "Where does photosynthesis happen in a plant?",
-        options: [
-          "In the roots",
-          "In the leaves",
-          "In the stem",
-          "In the flowers"
-        ],
-        correctAnswer: 1,
-        hints: [
-          "Think about which part of the plant is green and faces the sun...",
-          "This part contains something called chlorophyll...",
-          "It's the part that's usually flat and wide to catch sunlight..."
-        ],
-        explanation: "Photosynthesis happens in the leaves! Leaves contain chlorophyll (which makes them green) and are designed to capture sunlight efficiently."
+  useEffect(() => {
+    async function fetchQuiz() {
+      try {
+        setLoading(true)
+        const profile = JSON.parse(localStorage.getItem('eduai_profile') || '{}')
+        const lesson = JSON.parse(localStorage.getItem('eduai_lesson') || '{}')
+        const course = JSON.parse(localStorage.getItem('eduai_course') || '{}')
+        const userId = profile.user_id || 'user_001'
+        const lessonId = lesson.lesson_id || 'lesson_001'
+        const courseId = course.course_id || null
+
+        const res = await generateQuiz({ userId, lessonId, courseId, difficulty: 'medium', numQuestions: 3 })
+        const data = res.data || res
+
+        // Normalize backend questions to frontend shape
+        const questions = (data.questions || []).map((q, i) => {
+          const opts = q.options || ['True', 'False']
+          const correctIdx = opts.findIndex(o => o === q.correct_answer)
+          return {
+            id: q.question_id || `q${i + 1}`,
+            question: q.question_text || q.question || `Question ${i + 1}`,
+            options: opts,
+            correctAnswer: correctIdx >= 0 ? correctIdx : 0,
+            hints: [
+              'Think carefully about what you learned in the lesson...',
+              'Re-read the options and eliminate the ones that seem wrong.',
+              'Trust your first instinct!'
+            ],
+            explanation: `The correct answer is: ${q.correct_answer || opts[0]}`
+          }
+        })
+
+        if (questions.length === 0) {
+          setError('No quiz questions were generated. Try uploading a lesson first.')
+          return
+        }
+
+        setQuizData({
+          title: data.topic || lesson.title || 'Quiz',
+          course: lesson.fileName || lesson.title || 'Uploaded Lesson',
+          questions,
+        })
+      } catch (err) {
+        console.error('Failed to load quiz:', err)
+        setError(err.message || 'Failed to generate quiz')
+      } finally {
+        setLoading(false)
       }
-    ]
+    }
+
+    fetchQuiz()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#efefee' }}>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#1d348a] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-xl font-bold text-gray-600">Generating your quiz...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !quizData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#efefee' }}>
+        <div className="text-center max-w-md">
+          <p className="text-xl font-bold text-red-600 mb-4">{error || 'Could not load quiz'}</p>
+          <Link to="/workspace" className="px-6 py-3 bg-[#1d348a] text-white font-bold rounded-xl hover:bg-[#162870] transition-colors">
+            Back to Workspace
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   const currentQ = quizData.questions[currentQuestion]
@@ -75,7 +97,7 @@ export default function Quiz() {
   const progress = ((currentQuestion) / quizData.questions.length) * 100
 
   const handleAnswerSelect = (answerIndex) => {
-    if (showFeedback) return // Prevent changing answer after submission
+    if (showFeedback) return
     setSelectedAnswer(answerIndex)
   }
 
@@ -87,7 +109,10 @@ export default function Quiz() {
     const isCorrect = selectedAnswer === currentQ.correctAnswer
     setAnsweredQuestions([...answeredQuestions, {
       questionId: currentQ.id,
+      question: currentQ.question,
       selectedAnswer,
+      userAnswer: currentQ.options[selectedAnswer],
+      correctAnswer: currentQ.options[currentQ.correctAnswer],
       isCorrect,
       hintsUsed: hintLevel
     }])
@@ -95,8 +120,16 @@ export default function Quiz() {
 
   const handleNextQuestion = () => {
     if (isLastQuestion) {
-      // Navigate to results page
-      navigate('/quiz-results')
+      // Build final results including this last answer
+      const allAnswered = [...answeredQuestions]
+      // Last answer was already pushed in handleSubmitAnswer
+      navigate('/quiz-results', {
+        state: {
+          quizTitle: quizData.title,
+          totalQuestions: quizData.questions.length,
+          questions: allAnswered,
+        }
+      })
     } else {
       setCurrentQuestion(currentQuestion + 1)
       setSelectedAnswer(null)
@@ -117,8 +150,7 @@ export default function Quiz() {
   const score = answeredQuestions.filter(q => q.isCorrect).length
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#efefee' }}>
-      {/* Header */}
+    <div className="min-h-screen flex flex-col" style={{ background: '#efefee', fontSize: 'var(--user-font-size)' }}>
       <header className="bg-white px-6 lg:px-10 py-4 shadow-sm flex items-center justify-between border-b border-[#e8eef6] sticky top-0 z-20">
         <div className="flex items-center gap-6">
           <Link to="/workspace" className="text-gray-500 hover:text-[#1d348a] font-medium flex items-center gap-2 transition-colors">
@@ -278,7 +310,7 @@ export default function Quiz() {
                   </div>
                   <div className="flex-1">
                     <h3 className={`text-xl font-black mb-2 ${isCorrect ? 'text-[#059669]' : 'text-red-600'}`}>
-                      {isCorrect ? '✓ Correct!' : '✗ Not quite right'}
+                      {isCorrect ? 'Correct!' : 'Not quite right'}
                     </h3>
                     <p className="text-lg text-gray-700 leading-relaxed">
                       {currentQ.explanation}

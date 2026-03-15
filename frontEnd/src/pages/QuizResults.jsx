@@ -1,40 +1,64 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import Button from '../components/Button'
 
 export default function QuizResults() {
-  // Mock results data - in real app, this would be passed from Quiz component
-  const results = {
-    quizTitle: "Photosynthesis Quiz",
-    totalQuestions: 3,
-    correctAnswers: 2,
-    questions: [
-      {
-        question: "What is the main purpose of photosynthesis?",
-        userAnswer: "To create food/energy for the plant",
-        isCorrect: true,
-        hintsUsed: 1
-      },
-      {
-        question: "Which THREE things do plants need for photosynthesis?",
-        userAnswer: "Sunlight, soil, oxygen",
-        correctAnswer: "Sunlight, water, carbon dioxide",
-        isCorrect: false,
-        hintsUsed: 0
-      },
-      {
-        question: "Where does photosynthesis happen in a plant?",
-        userAnswer: "In the leaves",
-        isCorrect: true,
-        hintsUsed: 2
-      }
-    ]
+  const location = useLocation()
+  const state = location.state
+
+  // Use data passed from Quiz page, or show fallback
+  const results = state ? {
+    quizTitle: state.quizTitle || 'Quiz',
+    totalQuestions: state.totalQuestions || 0,
+    correctAnswers: (state.questions || []).filter(q => q.isCorrect).length,
+    questions: (state.questions || []).map(q => ({
+      question: q.question,
+      userAnswer: q.userAnswer,
+      correctAnswer: q.correctAnswer,
+      isCorrect: q.isCorrect,
+      hintsUsed: q.hintsUsed || 0,
+    }))
+  } : null
+
+  if (!results) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#efefee' }}>
+        <div className="text-center max-w-md">
+          <p className="text-xl font-bold text-gray-600 mb-4">No quiz results to display.</p>
+          <Link to="/quiz" className="px-6 py-3 bg-[#1d348a] text-white font-bold rounded-xl hover:bg-[#162870] transition-colors inline-block">
+            Take a Quiz
+          </Link>
+        </div>
+      </div>
+    )
   }
 
-  const percentage = Math.round((results.correctAnswers / results.totalQuestions) * 100)
+  const percentage = results.totalQuestions > 0
+    ? Math.round((results.correctAnswers / results.totalQuestions) * 100)
+    : 0
   const passed = percentage >= 70
 
+  // Persist this attempt to localStorage for the Progress page
+  useEffect(() => {
+    if (!results) return
+    const entry = {
+      id: Date.now(),
+      quizTitle: results.quizTitle,
+      date: new Date().toISOString(),
+      percentage,
+      passed,
+      correctAnswers: results.correctAnswers,
+      totalQuestions: results.totalQuestions,
+    }
+    try {
+      const existing = JSON.parse(localStorage.getItem('eduai_quiz_history') || '[]')
+      const updated = [entry, ...existing].slice(0, 20) // keep last 20
+      localStorage.setItem('eduai_quiz_history', JSON.stringify(updated))
+    } catch (_) {}
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#efefee' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#efefee', fontSize: 'var(--user-font-size)' }}>
       {/* Header */}
       <header className="bg-white px-6 lg:px-10 py-4 shadow-sm flex items-center justify-between border-b border-[#e8eef6]">
         <div className="flex items-center gap-6">
@@ -84,7 +108,7 @@ export default function QuizResults() {
 
             {!passed && (
               <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-5 border-2 border-white/20">
-                <p className="text-base font-semibold">💡 Don't worry! Learning takes time. Review the explanations and try again when you're ready.</p>
+                <p className="text-base font-semibold">Don't worry! Learning takes time. Review the explanations and try again when you're ready.</p>
               </div>
             )}
           </div>
