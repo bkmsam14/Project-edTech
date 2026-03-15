@@ -31,6 +31,9 @@ from utils.ai_utils import (
     _validate_quiz_structure,
     _validate_question_structure
 )
+from utils.recommendation import (
+    generate_recommendations,
+)
 
 __all__ = [
     # Accessibility utilities
@@ -60,4 +63,6 @@ __all__ = [
     "generate_quiz_with_ai",
     "build_explanation_prompt",
     "build_text_simplification_prompt",
+    # Recommendation utilities
+    "generate_recommendations",
 ]

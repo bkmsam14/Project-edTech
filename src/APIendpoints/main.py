@@ -54,6 +54,11 @@ app.add_middleware(
 # PART 7: Initialize global orchestrator instance
 logger.info("🚀 Initializing Orchestrator...")
 orchestrator = Orchestrator()
+
+# Register all workflow handlers with the orchestrator
+from handlers import register_handlers
+register_handlers(orchestrator)
+
 logger.info("✓ Orchestrator ready for use")
 
 
