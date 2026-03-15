@@ -26,7 +26,8 @@ async def get_recommendations(request: RecommendationRequest):
         orch_request = OrchestratorRequest(
             user_id=request.user_id,
             message="What should I learn next?",
-            lesson_id=request.current_lesson_id or ""
+            lesson_id=request.current_lesson_id or "",
+            context={"depth": request.depth}
         )
 
         # Process through orchestrator
