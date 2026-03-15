@@ -8,7 +8,7 @@
 --   3. accessibility_settings  -> dyslexia font/color/TTS preferences
 --   4. learning_preferences    -> pace, format, gamification
 --
--- Run order: 01 (this file) -> 02_analytics_db.sql -> 002_document_store.sql
+-- Run order: 000 (this file) -> 001_analytics_schema -> 002_content_schema
 --
 -- The Learner Profile Module reads from ALL 4 tables and
 -- assembles a single profile dict for the orchestrator context.
